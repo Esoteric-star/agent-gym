@@ -1,5 +1,6 @@
 """In-memory cache with LRU eviction and time-to-live."""
 import time
+from collections import OrderedDict
 
 
 class TTLCache:
@@ -23,16 +24,57 @@ class TTLCache:
     """
 
     def __init__(self, maxsize, ttl, clock=time.monotonic):
-        raise NotImplementedError
+        if not isinstance(maxsize, int) or maxsize < 1:
+            raise ValueError("maxsize must be an integer >= 1")
+        if ttl <= 0:
+            raise ValueError("ttl must be greater than 0")
+        self._maxsize = maxsize
+        self._ttl = ttl
+        self._clock = clock
+        self._data = OrderedDict()
+        self._expiry = {}
+
+    def _is_expired(self, key):
+        return self._clock() >= self._expiry[key]
+
+    def _cleanup_expired(self):
+        expired_keys = [key for key in self._data if self._is_expired(key)]
+        for key in expired_keys:
+            del self._data[key]
+            del self._expiry[key]
 
     def set(self, key, value):
-        raise NotImplementedError
+        if key in self._data:
+            del self._data[key]
+        self._data[key] = value
+        self._expiry[key] = self._clock() + self._ttl
+        self._data.move_to_end(key)
+        if len(self._data) > self._maxsize:
+            self._cleanup_expired()
+            while len(self._data) > self._maxsize:
+                oldest_key = next(iter(self._data))
+                del self._data[oldest_key]
+                del self._expiry[oldest_key]
 
     def get(self, key, default=None):
-        raise NotImplementedError
+        if key not in self._data:
+            return default
+        if self._is_expired(key):
+            del self._data[key]
+            del self._expiry[key]
+            return default
+        self._data.move_to_end(key)
+        return self._data[key]
 
     def __len__(self):
-        raise NotImplementedError
+        self._cleanup_expired()
+        return len(self._data)
 
     def __contains__(self, key):
-        raise NotImplementedError
+        if key not in self._data:
+            return False
+        if self._is_expired(key):
+            del self._data[key]
+            del self._expiry[key]
+            return False
+        return True
