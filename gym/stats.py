@@ -7,12 +7,15 @@ def moving_average(values, window):
     The result has len(values) - window + 1 items. Raise ValueError if
     window < 1 or window > len(values).
     """
+    values = list(values)
     if window < 1:
         raise ValueError("window must be >= 1")
     if window > len(values):
         raise ValueError("window must be <= len(values)")
     out = []
-    for i in range(len(values) - window + 1):
-        chunk = values[i:i + window]
-        out.append(sum(chunk) / window)
+    window_sum = sum(values[:window])
+    out.append(window_sum / window)
+    for i in range(window, len(values)):
+        window_sum += values[i] - values[i - window]
+        out.append(window_sum / window)
     return out
