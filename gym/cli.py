@@ -13,9 +13,9 @@ def read_results(path):
 
 
 def render(rows):
-    lines = [f"{'Pos':>3} {'Team':<20} {'P':>2} {'GD':>4} {'Pts':>3}"]
+    lines = [f"{'Pos':>3} {'Team':<20} {'P':>2} {'GD':>4} {'Pts':>3} {'Form':>5}"]
     for i, r in enumerate(rows, 1):
-        lines.append(f"{i:>3} {r['team']:<20} {r['played']:>2} {r['gd']:>4} {r['points']:>3}")
+        lines.append(f"{i:>3} {r['team']:<20} {r['played']:>2} {r['gd']:>4} {r['points']:>3} {r['form']:>5}")
     return "\n".join(lines)
 
 

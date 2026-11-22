@@ -8,7 +8,7 @@ def build_table(results):
     Win = 3 points, draw = 1, loss = 0.
 
     Return a list of dicts with keys: team, played, won, drawn, lost,
-    gf, ga, gd, points; sorted by points desc, then goal difference desc,
+    gf, ga, gd, points, form; sorted by points desc, then goal difference desc,
     then goals for desc, then team name ascending.
     """
     table = {}
@@ -16,7 +16,7 @@ def build_table(results):
     def row(team):
         return table.setdefault(team, {"team": team, "played": 0, "won": 0,
                                        "drawn": 0, "lost": 0, "gf": 0,
-                                       "ga": 0, "gd": 0, "points": 0})
+                                       "ga": 0, "gd": 0, "points": 0, "form": []})
 
     for home, hg, ag, away in results:
         h, a = row(home), row(away)
@@ -28,9 +28,14 @@ def build_table(results):
             if f > against:
                 r["won"] += 1
                 r["points"] += 3
+                r["form"].append("W")
             elif f == against:
                 r["drawn"] += 1
                 r["points"] += 1
+                r["form"].append("D")
             else:
                 r["lost"] += 1
+                r["form"].append("L")
+    for r in table.values():
+        r["form"] = "".join(r["form"][-5:])
     return sorted(table.values(), key=lambda r: (-r["points"], -r["gd"], -r["gf"], r["team"]))
