@@ -33,4 +33,4 @@ def build_table(results):
                 r["points"] += 1
             else:
                 r["lost"] += 1
-    return sorted(table.values(), key=lambda r: r["points"], reverse=True)
+    return sorted(table.values(), key=lambda r: (-r["points"], -r["gd"], -r["gf"], r["team"]))
