@@ -14,8 +14,17 @@ def round_robin(teams):
     n = len(t)
     if n < 2:
         return []
+    if n % 2 == 1:
+        t = t + [None]
+        n += 1
     rounds = []
     for _ in range(n - 1):
-        rounds.append([(t[i], t[n - 1 - i]) for i in range(n // 2)])
-        t = [t[-1]] + t[:-1]
+        round_matches = []
+        for i in range(n // 2):
+            home = t[i]
+            away = t[n - 1 - i]
+            if home is not None and away is not None:
+                round_matches.append((home, away))
+        rounds.append(round_matches)
+        t = [t[0]] + t[-1:] + t[1:-1]
     return rounds
