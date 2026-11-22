@@ -1,4 +1,5 @@
 """Money formatting."""
+from decimal import Decimal, ROUND_HALF_UP
 
 
 def format_gbp(amount):
@@ -7,4 +8,11 @@ def format_gbp(amount):
     Negative amounts are written '-£1,234.50'. Round half up to 2 decimal
     places (2.675 -> '£2.68'). Accept int, float, str or Decimal.
     """
-    return "£" + format(round(float(amount), 2), ",.2f")
+    d = Decimal(str(amount))
+    rounded = d.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    sign = "-" if rounded < 0 else ""
+    abs_val = abs(rounded)
+    if abs_val == 0:
+        return "£0.00"
+    formatted = f"{abs_val:,.2f}"
+    return f"{sign}£{formatted}"
