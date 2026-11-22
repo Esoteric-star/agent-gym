@@ -24,8 +24,13 @@ def main(argv=None):
     sub = p.add_subparsers(dest="cmd", required=True)
     t = sub.add_parser("table", help="print a league table")
     t.add_argument("csv")
+    t.add_argument("--top", type=int, required=False, help="print only top N teams")
     args = p.parse_args(argv)
     rows = build_table(read_results(args.csv))
+    if args.top is not None and args.top < 1:
+        p.error("--top must be >= 1")
+    if args.top is not None:
+        rows = rows[:args.top]
     print(render(rows))
     return 0
 
